@@ -3,20 +3,21 @@ CREATE DATABASE auction;
 
 USE auction;
 --              Create a user table with appropriate fields
-CREATE TABLE `user` (
-    user_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, full_name VARCHAR(50) NOT NULL, email VARCHAR(30) UNIQUE NOT NULL, password VARCHAR(30) NOT NULL, phone_number VARCHAR(20) UNIQUE NOT NULL, address VARCHAR(200) NOT NULL, account_balance FLOAT DEFAULT 0.0, role ENUM('buyer', 'seller') NOT NULL
-);
 
 CREATE TABLE seller (
-    seller_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, info_id INT NOT NULL, FOREIGN KEY (info_id) REFERENCES `user` (user_id), status ENUM(
+    seller_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, full_name VARCHAR(50) NOT NULL, email VARCHAR(30) UNIQUE NOT NULL, `password` VARCHAR(30) NOT NULL, phone_number VARCHAR(20) UNIQUE NOT NULL, address VARCHAR(200) NOT NULL, account_balance FLOAT DEFAULT 0.0, `status` ENUM(
         'active', 'suspended', 'banned'
     ), total_items_posted INT DEFAULT(0), rating FLOAT CHECK (rating <= 5) DEFAULT 0.0, total_transactions INT DEFAULT 0, last_transaction_date DATE
+);
+
+CREATE TABLE buyer (
+    buyer_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, full_name VARCHAR(50) NOT NULL, email VARCHAR(30) UNIQUE NOT NULL, `password` VARCHAR(30) NOT NULL, phone_number VARCHAR(20) UNIQUE NOT NULL, address VARCHAR(200) NOT NULL, account_balance FLOAT DEFAULT 0.0
 );
 
 CREATE TABLE item (
     item_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, seller_id INT NOT NULL, FOREIGN KEY (seller_id) REFERENCES seller (seller_id), item_title VARCHAR(200) NOT NULL, item_description VARCHAR(500), posted_date DATE DEFAULT CURRENT_TIMESTAMP, start_date DATE DEFAULT CURRENT_TIMESTAMP, end_date DATE NOT NULL, starting_price FLOAT NOT NULL DEFAULT 0.0, CURRENT_STATUS ENUM(
         'pending', 'active', 'sold', 'expired', 'rejected'
-    ) DEFAULT 'pending', total_bidders INT DEFAULT 0, highest_bid INT, FOREIGN KEY (highest_bid) REFERENCES bid (bid_id)
+    ) DEFAULT 'pending', total_bidders INT DEFAULT 0, highest_bid
 );
 
 CREATE TABLE bid (
