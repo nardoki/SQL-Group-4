@@ -234,6 +234,40 @@ SELECT * FROM statistics
 
 DELIMITER ;
 
+-- Granting permissions to UsersAdmin role
+GRANT SUSPEND ON seller TO UsersAdmin;
+
+-- Granting permissions to SuperAdmin role
+GRANT SELECT ON statistics_table TO SuperAdmin;
+GRANT SELECT ON sellers TO SuperAdmin;
+GRANT SELECT ON buyers TO SuperAdmin;
+UPDATE transaction SET payment_status = 'completed' WHERE payment_status = 'pending' AND role = 'SuperAdmin';
+-- Granting Permissions to Roles
+
+-- Granting permissions to the seller role
+GRANT SELECT, INSERT, UPDATE, DELETE ON item TO seller;
+GRANT SELECT, INSERT ON bid TO seller;
+
+-- Granting permissions to the buyer role
+GRANT SELECT, INSERT, UPDATE ON bid TO buyer;
+
+-- Granting permissions to the administrator role
+GRANT ALL PRIVILEGES ON item TO administrator;
+GRANT ALL PRIVILEGES ON bid TO administrator;
+GRANT ALL PRIVILEGES ON transaction TO administrator;
+
+-- Creating a view to show approved items for buyers
+CREATE VIEW approved_items AS
+SELECT * FROM item WHERE CURRENT_STATUS = 'active';
+
+-- Granting read permission on the approved_items view to the buyer role
+GRANT SELECT ON approved_items TO buyer;
+
+-- Ensuring that only authorized users can execute procedures
+GRANT EXECUTE ON PROCEDURE CreateSeller TO seller;
+GRANT EXECUTE ON PROCEDURE CreateBuyer TO buyer;
+
+
 
 
 
