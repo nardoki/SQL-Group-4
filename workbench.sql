@@ -17,18 +17,20 @@ CREATE TABLE seller (
     total_items_posted INT DEFAULT(0),
     rating FLOAT CHECK (rating <= 5) DEFAULT 0.0,
     total_transactions INT DEFAULT 0,
-    last_transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    last_transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    account_created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 
 CREATE TABLE buyer (
     buyer_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    full_name VARCHAR(50) NOT NULL,
-    email VARCHAR(30) UNIQUE NOT NULL,
-    `password` VARCHAR(30) NOT NULL,
-    phone_number VARCHAR(20) UNIQUE NOT NULL,
-    address VARCHAR(200) NOT NULL,
-    account_balance FLOAT DEFAULT 0.0
+    full_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    `password` VARCHAR(100) NOT NULL,
+    phone_number VARCHAR(100) UNIQUE NOT NULL,
+    `address` VARCHAR(100) NOT NULL,
+    account_balance FLOAT DEFAULT 0.0,
+        account_created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 );
 
 CREATE TABLE item (
@@ -47,11 +49,15 @@ CREATE TABLE item (
         'sold',
         'expired',
         'rejected'
-    ) DEFAULT 'pending',
-    total_bidders INT DEFAULT 0,
-    highest_bid INT,
-    FOREIGN KEY (highest_bid) REFERENCES bid (bid_id)
+    ) DEFAULT 'pending'
 );
+
+CREATE TABLE itemImage (
+    image_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    item_id INT NOT NULL,
+    FOREIGN KEY (item_id) REFERENCES item (item_id),
+    image_URL VARCHAR(300) NOT NULL
+)
 
 CREATE TABLE bid (
     bid_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -62,6 +68,15 @@ CREATE TABLE bid (
     bid_amount FLOAT NOT NULL CHECK (bid_amount > 0.0),
     bid_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
+CREATE TABLE itemsBids (
+    items_bids_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    item_id INT , FOREIGN KEY(item_id) REFERENCES item(item_id),
+    total_bids INT DEFAULT 0,
+    last_bid_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    highest_bid INT, FOREIGN KEY(highest_bid) REFERENCES bid(highest_bid),
+)
 
 CREATE TABLE `transaction` (
     transaction_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -125,14 +140,30 @@ CREATE TABLE `statistics` (
 
 -- ########## Procedures ##########
 
--- ## Create sign up as a seller
+-- ## Sign up for a seller
 DELIMITER &&
 CREATE PROCEDURE CreateSeller (IN full_name VARCHAR(100), IN email VARCHAR(100), IN `password` VARCHAR(100), IN phone_number VARCHAR(100), IN `address` VARCHAR(100))
 BEGIN
 INSERT INTO seller (full_name, email, `password`, phone_number, `address`) VALUES(full_name, email, `password`, phone_number, `address`);
 END &&
+
+-- ## Sign up for a buyer 
+CREATE PROCEDURE CreateBuyer (IN full_name VARCHAR(100), IN email VARCHAR(100), IN `password` VARCHAR(100), IN phone_number VARCHAR(100), IN `address` VARCHAR(100))
+BEGIN
+INSERT INTO buyer (full_name, email, `password`, phone_number, `address`) VALUES(full_name, email,`password`, phone_number, `address`);
+END &&
+
+-- ## Adding items
+CREATE PROCEDURE AddItem (IN item_id INT, IN seller_id INT, IN item_title VARCHAR(200), item_description VARCHAR(500), item_image VARCHAR(300), start_date TIMESTAMP, end_date TIMESTAMP, starting_price FLOAT)
+BEGIN
+INSERT INTO item(seller_id, item_title, item_description, start_date, end_date, starting_price) VALUES(seller_id, item_title, item_description, start_date, end_date, starting_price);
+INSERT INTO itemImage(item_id, image_URL) VALUES(item_id, item_image);  
+END &&
 DELIMITER ;
 
-CALL CreateSeller('Faysel Abdella', 'fayselcode@gmail.com', '123', '0968137473', 'Adama, Ethiopia');
 
-SELECT * FROM seller
+CALL AddItem(1, 1, "A 180 villa house", "This house is located around ASTU main get and it has a total of 8 rooms", "https://images.com/house/villa/1", "2024-01-27 10:00:00", "2024-02-02 10:00:00", 500000)
+
+
+
+
