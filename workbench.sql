@@ -126,6 +126,8 @@ CREATE TABLE `statistics` (
     total_profit FLOAT DEFAULT 0
 );
 
+INSERT INTO `statistics` (total_users, total_sellers, total_buyers, total_posted_items, total_active_items, total_sold_items, total_rejected_items, total_transactions,total_transaction_money, total_profit) VALUES(0,0,0,0,0,0,0,0,0,0);
+
 -- ########## Procedures ##########
 
 -- ## Sign up for a seller
@@ -135,6 +137,8 @@ BEGIN
 INSERT INTO seller (full_name, email, `password`, phone_number, `address`) VALUES(full_name, email, `password`, phone_number, `address`);
 END &&
 
+CALL `RegisterSeller`('Abdi', 'abdi32@gmail.com', '123', '98928983', 'hawasa');
+
 
 -- ## Sign up for a buyer 
 CREATE PROCEDURE RegisterBuyer (IN full_name VARCHAR(100), IN email VARCHAR(100), IN `password` VARCHAR(100), IN phone_number VARCHAR(100), IN `address` VARCHAR(100))
@@ -142,7 +146,7 @@ BEGIN
 INSERT INTO buyer (full_name, email, `password`, phone_number, `address`) VALUES(full_name, email,`password`, phone_number, `address`);
 END &&
 
-CALL CreateBuyer('Faysel Abdella', 'faysel@gmail.com', '123', '0988785', 'Adama, Ethiopia');
+CALL RegisterBuyer('Faysel Abdella', 'faysel32@gmail.com', '123', '039887852', 'Adama, Ethiopia');
 
 
 SELECT * FROM buyer
@@ -188,10 +192,48 @@ END &&
 CALL RegisterAdmin('Faysel Abdella', 'fayselcode@gmail.com', '123', 'ItemsAdmin');
 
 SELECT * FROM `admin`
+-- @to_do procedures
+-- PerformTransaction
+-- 
+--
+--
+--
+--
+--
+--
+--
+DELIMITER ;
 
+-- ########## Triggers ##########
+
+-- ## Update the statistics table whenever a write operations performed on the seller, buyer, item, bid, transaction, complain tables
+
+DELIMITER &&
+CREATE TRIGGER UpdateTotalSellersStatistics 
+AFTER INSERT ON seller
+FOR EACH ROW
+BEGIN
+UPDATE `statistics`
+SET total_users = total_users + 1,
+    total_sellers = total_sellers + 1;
+END &&
+
+CREATE TRIGGER UpdateTotalBuyersStatistics 
+AFTER INSERT ON buyer
+FOR EACH ROW
+BEGIN
+UPDATE `statistics`
+SET total_users = total_users + 1,
+    total_buyers = total_buyers + 1;
+END &&
+
+
+
+SELECT * FROM statistics
 
 
 DELIMITER ;
+
 
 
 
